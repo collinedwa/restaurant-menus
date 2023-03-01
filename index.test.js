@@ -53,12 +53,26 @@ describe('Restaurant and Menu Models', () => {
 
         await foundRestaurant.destroy();
 
-        foundRestaurant = await Restaurant.findAll({
+        restaurantSearch = await Restaurant.findAll({
             where: {
                 name: "Howdy Fellers"
             }
         });
 
-        expect(foundRestaurant.length).toBe(0);
+        expect(restaurantSearch.length).toBe(0);
+    });
+
+    test('can delete Menus', async () => {
+        foundMenu = await Menu.findByPk(1);
+
+        await foundMenu.destroy();
+
+        menuSearch = await Menu.findAll({
+            where: {
+                title: "Grubby Grubs"
+            }
+        });
+
+        expect(menuSearch.length).toBe(0);
     });
 })
