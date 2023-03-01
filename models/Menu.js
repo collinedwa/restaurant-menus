@@ -1,6 +1,8 @@
-const {sequelize} = require('../db');
-const { Sequelize } = require('sequelize');
+const db = require("../db.js");
+const { Sequelize, Model } = require('sequelize');
 
-// TODO - create a Menu model
+let Menu = db.define("menus", {
+    title: Sequelize.STRING
+});
 
-module.exports = {Menu};
+module.exports = Menu;
