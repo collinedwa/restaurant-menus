@@ -1,8 +1,9 @@
 const db = require('./db')
-const {Restaurant, Menu} = require('./models/index')
+const {Restaurant, Menu, Item} = require('./models/index')
 const {
     seedRestaurant,
     seedMenu,
+    seedItem
   } = require('./seedData');
 
 describe('Restaurant and Menu Models', () => {
@@ -38,13 +39,11 @@ describe('Restaurant and Menu Models', () => {
 
     test('can find Restaurants', async () => {
         results = await Restaurant.findAll();
-        console.log(results);
         expect(results.length).toEqual(1);
     });
 
     test('can find Menus', async () => {
         results = await Menu.findAll();
-        console.log(results);
         expect(results.length).toEqual(1);
     });
 
@@ -75,4 +74,45 @@ describe('Restaurant and Menu Models', () => {
 
         expect(menuSearch.length).toBe(0);
     });
+
+    test('Can add multiple items to multiple menus', async () => {
+        for (menu of seedMenu){
+            newMenu = await Menu.create(menu);
+        }
+        
+        const firstMenu = await Menu.findByPk(2);
+        const secondMenu = await Menu.findByPk(3);
+
+        for (item of seedItem){
+            currItem = await Item.create(item);
+            await firstMenu.addItem(currItem.id);
+            await secondMenu.addItem(currItem.id);
+        }
+
+        menuList = await Menu.findAll({
+            include: [
+                {model: Item, as: "items"}
+            ]
+        })
+
+        const firstMenuItems = menuList[0].items;
+        const secondMenuItems = menuList[1].items;
+        
+        expect(firstMenuItems.length).toEqual(secondMenuItems.length);
+    })
+
+    test('can add multiple menus to one restaurant', async () => {
+        firstRestaurant = await Restaurant.create(seedRestaurant[0]);
+        secondRestaurant = await Restaurant.create(seedRestaurant[1]);
+
+        for (i = 1; i < 5; i++){
+            await firstRestaurant.addMenu(i);
+            await secondRestaurant.addMenu(i);
+        }
+
+        firstRestaurantMenus = await firstRestaurant.getMenus();
+        secondRestaurantMenus = await secondRestaurant.getMenus();
+
+        expect(firstRestaurantMenus.length).toBeLessThan(secondRestaurantMenus.length);
+    })
 })
